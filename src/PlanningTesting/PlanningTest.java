@@ -2,6 +2,8 @@ package PlanningTesting;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ArrayBlockingQueue;
+
 import PlanningTesting.Mode;
 import PlanningTesting.Condition;
 import PlanningTesting.testTrainer;
@@ -12,14 +14,17 @@ import modeselection.planning.GoalPicker;
 import modeselection.planning.Planner;
 import modeselection.vision.CameraFlagger;
 import modeselection.vision.landmarks.LandmarkFlagger;
+import lejos.hardware.Button;
 import lejos.hardware.Sound;
 
 public class PlanningTest {
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException{
 		File testSong = new File("test1.wav");
 		File testSong2 = new File("dumb.wav");
 		Thread threadOne = new Thread(() -> Sound.playSample(testSong, 80));
 		Thread threadTwo = new Thread(() -> Sound.playSample(testSong, 80));
+		
+		ArrayBlockingQueue queue = new ArrayBlockingQueue(5);
 		
 		CameraFlagger<Condition> camera = new CameraFlagger<>();
 		LandmarkFlagger<Condition> landmarker = new LandmarkFlagger<>(testTrainer.FILENAME);
@@ -46,6 +51,8 @@ public class PlanningTest {
 					Motor.D.forward();
 				})
 				.mode(Mode.LEFT_1, () -> {
+					String SongOne = "test1.wav";
+					queue.add(SongOne);
 					Motor.A.setSpeed(90);
 					Motor.D.setSpeed(90);
 					Motor.A.backward();
@@ -62,5 +69,17 @@ public class PlanningTest {
 		GoalPicker<Condition,Mode> controller = new GoalPicker<>(planner, executor, sensors); 
 		controller.control();
 		System.exit(0);
+		
+		while (!Button.ESCAPE.isDown()) {
+			try {
+				String songName = queue.take().toString();
+				if (songName != "") {
+					File song = new File(songName);
+					new Thread(() -> Sound.playSample(song, 80));
+				}
+			} catch (InterruptedException e) {
+	            e.printStackTrace();
+			}
+		}
 	}
 }
