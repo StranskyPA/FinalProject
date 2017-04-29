@@ -18,6 +18,7 @@ import modeselection.util.Logger;
 
 public class soundTesting {
 	public static void main(String[] args) throws IOException {
+		File songOne = new File("/home/lejos/programs/test1.wav");
 		SensorFlagger<Condition> sonarClose = new SensorFlagger<>(new EV3UltrasonicSensor(SensorPort.S2), s -> s.getDistanceMode());
 		sonarClose.add2(Condition.CLEAR, Condition.TOO_CLOSE, f -> f > .3);
 		
@@ -39,7 +40,7 @@ public class soundTesting {
 				.mode(Mode.PLAY, 
 						transition, 
 						() -> {
-							File songOne = new File("/home/lejos/programs/test1.wav");
+							//File songOne = new File("/home/lejos/programs/dumb.wav");
 							queue.add(songOne);
 							Motor.A.stop(true);
 							Motor.D.stop();
