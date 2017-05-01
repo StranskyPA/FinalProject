@@ -16,9 +16,11 @@ import modeselection.SensorFlagger;
 import modeselection.Transitions;
 import modeselection.util.Logger;
 
-public class testing {
+public class test2 {
 	public static void main(String[] args) throws IOException {
 		
+		File songOne = new File("/home/lejos/programs/dumb.wav");
+		//File songTwo = new File("/home/lejos/programs/dumb.wav");
 		
 		SensorFlagger<Condition> sonarClose = new SensorFlagger<>(new EV3UltrasonicSensor(SensorPort.S2), s -> s.getDistanceMode());
 		sonarClose.add2(Condition.CLEAR, Condition.TOO_CLOSE, f -> f > .3);
@@ -30,8 +32,9 @@ public class testing {
 				try {
 					File testFile = queue.take();
 					Logger.EV3Log.format("File:%s", testFile.toString());
-					Sound.playSample(testFile, 100);
-					Logger.EV3Log.log("Song over");
+					Sound.playSample(testFile, 40);
+					Sound.pause(0);
+					//Logger.EV3Log.log("Song over");
 					
 				} catch (InterruptedException e) {
 					Logger.EV3Log.log("No song played");
@@ -49,17 +52,16 @@ public class testing {
 				.mode(Mode.FORWARD, 
 						transition, 
 						() -> {
+							//queue.add(songTwo);
 							Motor.A.forward();
 							Motor.D.forward();
 							})
 				.mode(Mode.PLAY, 
 						transition, 
 						() -> {
-							File songOne = new File("/home/lejos/programs/test1.wav");
 							queue.add(songOne);
 							Motor.A.stop(true);
 							Motor.D.stop();
-							//new Thread(() -> Sound.playSample(testSong, 100)).start();
 						});
 		
 		controller.control();
